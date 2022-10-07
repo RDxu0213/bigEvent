@@ -1,50 +1,62 @@
-$(function () {
-    $('#go2Reg').on('click', function () {
-        $('.login-warp').hide()
-        $('.reg-warp').show()
+$(function(){
+    // 点击注册
+    $('#goReg').on('click',function(){
+      $('.login-wrap').hide()
+      $('.res-wrap').show()
     })
-    $('#go2Login').on('click', function () {
-        $('.reg-warp').hide()
-        $('.login-warp').show()
+    // 点击登录
+    $('#goLogin').on('click',function(){
+      $('.res-wrap').hide()
+      $('.login-wrap').show()
     })
-    const form = layui.form
+    // 验证规则
+    let form = layui.form
     form.verify({
-        pwd: [
-            /^[\S]{6,12}$/
-            , '密码格式错误！！！'
-        ],
-        repwd: function (value) {
-            if ($('#password').val() !== value) {
-                return '密码不一致'
-            }
+      pwd:[
+        /^[\S]{6,12}$/,'密码必须6到12位，且不能出现空格'
+      ] ,
+      repwd:function(value){
+        let pwd = $(".res-wrap [name='password']").val()
+        if(pwd!==value){
+          return '与上次密码不一致'
         }
+      }
     })
-
-
-    $('#formReg').on('submit', function (e) {
-        e.preventDefault()
-        $.ajax({
-            method: 'POST',
-            url: '/api/reg',
-            data: $(this).serialize(),
-            success(res){
-                if(res.code!==0)return layer.msg(res.message)
-                layer.msg(res.message)
-                $('#go2Login').click()
-            }
-        })
+  
+    const layer = layui.layer
+    //监听注册表单的提交事件
+    $('.formReg').on('submit',function(e){
+      e.preventDefault()
+      $.ajax({
+        method:'post',
+        url:`/api/reg`,
+        data: $(this).serialize(),
+        success(res){
+          if(res.code !== 0){
+            return layer.msg(res.message)
+          }
+          layer.msg(res.message)
+          $('#goLogin').click()
+        }
+      })
+    })  
+    //监听注册表单的注册事件
+    $("#formLogin").on('submit',function(e){
+      e.preventDefault()
+      $.ajax({
+        method:'post',
+        url: `/api/login`,
+        data: $(this).serialize(),
+        success(res){
+          if(res.code !== 0){
+            return layer.msg(res.message)
+          }
+          layer.msg(res.message)
+          localStorage.setItem('token',res.token)
+          location.href = './index.html'
+        }
+      })
     })
-    $('#formLogin').on('submit', function (e) {
-        e.preventDefault()
-        $.ajax({
-            method: 'POST',
-            url: '/api/login',
-            data: $(this).serialize(),
-            success(res){
-                if(res.code!==0)return layer.msg(res.message)
-                localStorage.setItem('big_news_token',res.token)
-                location.href='/home.html'
-            }
-        })
-    })
-})
+  
+    
+  })
